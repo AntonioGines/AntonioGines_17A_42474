@@ -1,0 +1,20 @@
+Welcome to Blackjack 21!
+Here are the rules of the game. To start you must place a
+bet of at least $15 and up to a maximum of $500. Afterwards,
+you will be given two cards and the dealer will draw two cards for
+himself. The objective of the game is to keep the total
+value of the cards at or under 21 and to beat the dealer.
+Once you have seen your cards you can choose to either stay, hit,
+double down, or split. To stay means to keep your current
+cards. To hit means to ask for another card. To double down is to"
+double your initial bet but this can only be done after
+recieving your first two cards meaning you cannot hit and then
+double down. To split means to take two cards of matching
+value (Examples:A 9 of Hearts and a 9 of Spades) and split them into
+two separate decks and a singular card will be added to each deck.
+On top of this your initial bet will also be doubled.
+Beyond this it is relatively simple. You lose if the dealer
+gets a higher total than you that does not exceed 21 and you win if
+you have a higher total than the dealer that also does not
+exceed 21. Also, if the dealer busts but you do not it is an
+automatic win regardless of how small your numbers are.
