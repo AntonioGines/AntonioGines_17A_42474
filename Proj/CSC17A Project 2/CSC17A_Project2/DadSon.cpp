@@ -14,11 +14,31 @@ using namespace std;
 void Dad::CreateHand(){
     for(int i=0;i<=11;i++){
         Hand[i]=rand()%10+1;
-        cout<<Hand[i]<<endl;
+        //cout<<Hand[i]<<endl;
     }
 }
 
-int Dad::AmntBet(int){
+int Dad::AmntBet(){
     Bet=rand()%35+15;
-    Wallet-=Bet;
+    cout<<"The father placed a bet of $"<<Bet<<endl;
+}
+
+Dad Dad::operator + (const Dad &right){
+    Dad temp;
+    temp.Wallet = Wallet+right.Wallet;
+    return temp;
+}
+Dad Dad::operator -(const Dad &right){
+    Dad temp;
+    temp.Wallet = Wallet+right.Wallet;
+    return temp;
+}
+
+Son::~Son(){
+    cout<<"Thank you all for playing!"<<endl;
+}
+
+int Son::AmntBet(){
+    Bet=rand()%35+15;
+    cout<<"The son placed a bet of $"<<Bet<<endl;
 }

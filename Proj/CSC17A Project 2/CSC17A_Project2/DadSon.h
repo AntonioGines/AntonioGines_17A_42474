@@ -4,43 +4,54 @@ using namespace std;
 #define DADSON_H
 
 class Dad{
-private:
+protected:
     static int Count;
     int Wallet=1000;
     int Hand[12];
     int Bet;
+    bool Left;
 public:
+    //Default Constructor
     Dad(){}
-        void CreateHand();
-        int AmntBet(int);
-        int NewTotal();
-        bool LeaveTbl(int GetWallet);
-        int GetWallet(){
-            return Wallet;
-        }
-        int GetHand(){
-            return *Hand;
-        }
-        int GetBet(){
-            return Bet;
-        }
-    
+    //Destructor
+    void CreateHand();
+    //Determine Bet
+    int AmntBet();       
+    //How Much Money is in the Wallet
+    int NewTotal();
+    //Determine Whether or Not Father or Son has Left the Table
+    bool LeaveTbl();
+    //In line Getter Functions
+    int CountSet(){
+        Count++;
+    }
+    int GetWallet(){
+        return Wallet;
+    }
+    int GetHand(){
+        return *Hand;
+    }
+    int GetBet(){
+        return Bet;
+    }
+    bool GetLeft(){
+        return Left;
+    }
+    //Overloaded Operators Functions
+    Dad operator + (const Dad &);
+    Dad operator - (const Dad &);
 };
 
-class Son : protected Dad{
-private:
-    static int Count;
-    int Wallet;
-    int Hand[12];
-    int Bet;
+class Son : public Dad{
 public:
     Son(int n){
         cout<<"The son's father gave him $250 and is showing him how to play "
             <<"Blackjack 21."<<endl;
         Wallet=n;
     }
+    ~Son();
+    int AmntBet();
 };
-
 
 #endif /* DADSON_H */
 

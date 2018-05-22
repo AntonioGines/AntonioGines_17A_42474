@@ -12,26 +12,52 @@ class Steve{
     private:
         static int Count;
         int Wallet=1000;
+        string *Name=new string();
         int Hand[12];
         int Bet;
+        bool Left;
     public:
+        //Default COnstructor
         Steve(){
-            cout<<"Steve has joined you at the table."<<endl;
+            //cout<<"Steve has joined you at the table."<<endl;
         }
+        //Destructor
+        ~Steve(){};        
+        //Determine Bet
+        int AmntBet();       
+        //How Much Money is in the Wallet
+        int NewWallet(int money){
+            Wallet+=money;
+        }
+        //Set Player Names
+        int SetName(int);
+        //Create Hand to Pull Cards From
         void CreateHand();
-        int AmntBet(int);
-        int NewTotal();
-        bool LeaveTbl(int Wallet);
+        //Determine if The Player Ran out of Money
+        bool LeaveTbl();   
+        //Delete Names Memory
+        void DestrName();
+        //Check Exception for Name
+        void NameCheck(string);
+        //Count Number of Sets to Output upon Loss
+        void CountSet(){
+            ++Count;
+        }
         int GetWallet(){
             return Wallet;
         }
-        int GetHand(){
-            return *Hand;
+        int GetHand(int n){
+            return *(Hand+n);
         }
         int GetBet(){
             return Bet;
         }
+        string GetName(){
+            return *Name;
+        }
+        bool GetLeft(){
+            return Left;
+        }
 };
 
 #endif /* STEVE_H */
-

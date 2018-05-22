@@ -7,19 +7,54 @@
 #include <iostream>
 #include <ctime>
 #include <cstdlib>
+#include <string>
+#include <cstring>
 using namespace std;
 #include "Steve.h"
 
+int Steve::SetName(int n){
+    string name;
+    cout<<"Please enter the name for player "<<n+1<<endl;
+    cin>>name;
+    *Name=name;
+    //Create Exception if Any Numbers Are Entered
+        try{
+            //Get Name at Individual Points
+            NameCheck(name);
+        }
+        //If A Number Is Found in the String end Program
+        catch(string Check){
+        cout<<Check<<endl;
+        exit(0);
+        }    
+    }
 
-
-void Steve::CreateHand(){
-    for(int i=0;i<=11;i++){
-        Hand[i]=rand()%10+1;
-        cout<<Hand[i]<<endl;
+void Steve::NameCheck(string n){
+    //Compare String to Character Array of Numbers
+    char const* c="0123456789";
+    //For Each Letter Compare to See if Numbers appear
+    for(int h=0;h<=sizeof(n)-1;h++){
+        for(int num=0;num<=10-1;num++){
+            if((n[h])==*(c+num)){
+                string Check="Error: You Entered A Number";
+                //Throw If Numbers Caught
+                throw Check;
+            }
+        }
     }
 }
 
-int Steve::AmntBet(int){
+void Steve::CreateHand(){
+    for(int i=0;i<11;i++){
+        Hand[i]=rand()%10+1;
+    }
+}
+
+int Steve::AmntBet(){
     Bet=rand()%35+15;
-    Wallet-=Bet;
+    cout<<*Name<<" placed a bet of $"<<Bet<<endl;
+}
+
+void Steve::DestrName(){
+    delete Name;
 }

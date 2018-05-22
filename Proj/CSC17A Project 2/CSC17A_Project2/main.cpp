@@ -1,7 +1,7 @@
 /* 
  * File:   main.cpp
  * Author: Antonio Gines
- * Created on April, 12 , 2018, 12:37 PM
+ * Created on May, 6 , 2018, 12:37 PM
  * Purpose:  Blackjack 21
  */
 
@@ -11,8 +11,8 @@
 #include <cstdlib>                           //Used for random generator
 #include <ctime>                             //Used to seed random generator
 #include <cmath>                             //Used to calculate largest card
-#include <cstring>
-#include <memory>
+#include <cstring>                           //Used to make StrCmp
+#include <memory>                            //Used for Dynamic Memory
 #include <string>                            //Used to input names
 #include <fstream>                           //Used to read from file
 #include <vector>                            //Used to contain names
@@ -25,25 +25,31 @@ using namespace std;
 #include "DadSon.h"
 //Global Constants - Math/Physics Constants, Conversions,
 //                   2-D Array Dimensions
-//enum amount{earned};
+int NumCards=12;
 
 //Function Prototypes
-bool Read(fstream &, fstream &);                            //Input and Output Data via Binary Files
-Cards *DealHnd(int,int);                    //Allocate Memory and Create Cards
+bool Read(fstream &, fstream &);        //Input and Output Data via Binary Files
+Cards *DealHnd(int,int);                //Allocate Memory and Create Cards
 void Destroy(Cards *);                  //Delete Arrays in Memory
-int ace();                                  //Choose Whether an Ace=1 or 11
-int Dealt(int ,int );                       //Player's Total Cards Dealt
-void Names(char [],char []);           //Player's and Dealer's Name
-bool AutoWin(int, int);                     //Determine if Automatic Win  by 21
+int ace();                              //Choose Whether an Ace=1 or 11
+int Dealt(int ,int );                   //Player's Total Cards Dealt
+void Names(char [],char []);            //Player's and Dealer's Name
+bool AutoWin(int, int);                 //Determine if Automatic Win  by 21
+void AiOutcome(Steve [],int,int[][12],int);
+
+template<class T>
+T Incrmnt(T number){
+    return number+number;
+}
 
 //Execution Begins Here
 int main(int argc, char** argv) {
     //Declare Variables
     
     int SIZE=10;      
-    int Ppl=2,m=0;
+    int Ppl=2,m=0,AiTotal,AiCount;
     int newbet,total,rng1,rng2,card1,card2,card3,card4,payout,ptntial;
-    int total1,total2,split1,split2,dealtot;
+    int total1,total2,split1,split2,dealtot,numplay;
     char choice, hitagn, playagn,rule;
     float bet;
     bool win;
@@ -52,12 +58,11 @@ int main(int argc, char** argv) {
     
     fstream file;
     fstream copy;
-    Steve obj;
-    Dad check1;
+    Dad dad;
         cout<<"A Father and his son have come to the casino for the son's 18th "
         <<"birthday, the father has brought $1000 to use at the tables."
         <<endl;
-    Son check2(250);
+    Son son(250);
     
     
     //Seed Random Number Generator
@@ -72,12 +77,43 @@ int main(int argc, char** argv) {
     if (rule=='Y'){
         Read(file, copy);
     }
-
-    //Begin Game
+    //Invite Other Players
+    cout<<"How many other people would you like to join you at the table? "
+        <<"Please pick a number between 1 and 3."<<endl;
+    cin>>numplay;
+    Steve obj[numplay];
+    for(int m=0;m<=numplay-1;m++){
+        obj[m].SetName(m);
+    }
+    //Create Hand to Duplicate to
+    int ClsHand[numplay][12];
+    //Create Names
     cout<<"Before we begin, what is your name and what is the "
         <<"dealer's name?"<<endl;
     Names(you, deal);                           //Call FillAry
     do{ 
+        //Create Instance of Father and Son Class
+        dad.CreateHand();
+        son.CreateHand();
+        //Create Hand for Other Players
+        for(int i=0;i<=numplay-1;i++){
+            obj[i].CreateHand();
+        }
+        //Copy Hand to 2-D Array
+        for(int m=0;m<=numplay-1;m++){
+            for(int crd=0;crd<=10;crd++){
+                ClsHand[m][crd]=obj[m].GetHand(crd);
+                //cout<<ClsHand[m][crd]<<endl;
+            }
+        }
+        //Create Bets for Father and Son
+        dad.AmntBet();
+        son.AmntBet();
+        //Create Bets for AI Players
+        for(int t=0;t<=numplay-1;t++){
+            obj[t].AmntBet();
+        }
+        //Create Cards for Player and Dealer
         Cards *card;
         card=DealHnd(Ppl,SIZE);
         int count1=0;
@@ -172,11 +208,10 @@ int main(int argc, char** argv) {
 
             case 'S':cout<<endl;break;          //Choosing to stay
 
-            case 'D':bet+=bet;         //Choosing to double and incrementing bet
+            case 'D':Incrmnt(bet);     //Choosing to double and incrementing bet
                      card3=card[0].hand[2];
                      cout<<"You have doubled your initial bet to"<<endl;
-                     cout<<fixed<<setprecision(2)<<showpoint
-                     <<bet<<endl;
+                     cout<<bet<<endl;
                      cout<<"You will be given another card and cannot hit again"
                          <<endl;
                      cout<<"Your card is"<<endl;
@@ -196,7 +231,7 @@ int main(int argc, char** argv) {
                      split2=card2;
                      cout<<"You have doubled your initial bet and split it into"
                          <<"two hands. "<<endl;
-                     bet+=bet;                 //Incrementing the bet
+                     Incrmnt(bet);                 //Incrementing the bet
                      bet;
                      card3=card[0].hand[2];
                      card4=card[0].hand[3];
@@ -274,15 +309,58 @@ int main(int argc, char** argv) {
                 cout<<"You and the dealer tied so you get to keep your $"<<bet
                     <<endl;
             }
+            AiOutcome(obj, numplay, ClsHand, dealtot);
         }
+        
         cout<<"If you would like to play again type A and if not type in"
              <<" any other character."<<endl;
         cin>>playagn;                                //Would you like to replay?
         Destroy(card);
-    }while(playagn=='A'||playagn=='a');              //Choose to replay
+    }
+    while(playagn=='A'||playagn=='a');              //Choose to replay
+    for(int n=0;n<=numplay-1;n++){
+        obj[n].DestrName();
+    }
     //Exit stage right!
     return 0;
+}
 
+void AiOutcome(Steve obj[],int num,int hand[][12],int deal){
+    int AiTotal=0;
+    int AiCount=0;
+    int m=0;
+    for(int play=0;play<=num-1;play++){
+        //Calculate if they Haven't Left the Table
+        if(obj[play].GetLeft()==false){
+            //cout<<deal<<endl;
+            AiTotal=0;
+            AiCount=0;
+            //Pull Form Hand
+            while(AiTotal<15){
+                AiTotal+=hand[play][AiCount];
+                AiCount++;
+            }
+            cout<<"Hand is "<<AiTotal<<endl;
+            //If the AI Won
+            if(AiTotal>deal){
+                cout<<obj[play].GetName()<<" beat the dealer and won "
+                    <<obj[play].GetBet()<<endl;
+                obj[play].NewWallet(obj[play].GetBet());
+            }
+            //If the AI Lost
+            if(AiTotal<deal||AiTotal>21){
+                cout<<obj[play].GetName()<<" was beaten by the house and lost $"
+                    <<obj[play].GetBet()<<endl;
+                m=0-obj[play].GetBet();
+                obj[play].NewWallet(m);
+            }
+            //If the AI and the Dealer tied
+            if(AiTotal==deal&&AiTotal<=21){
+                cout<<obj[play].GetName()<<" tied with the dealer and kept "
+                    <<"their bet of $"<<obj[play].GetBet()<<endl;
+            }
+        }
+    }
 }
 
 bool AutoWin(int num1, int num2){                    //If first hand is 21
@@ -326,6 +404,7 @@ int ace(){                                           //Determine if it is an Ace
     return n;
 }
 
+//Allocate Memory for Hand of Cards
 Cards *DealHnd(int Ppl, int SIZE){
     Cards *card=new Cards[Ppl];
     
@@ -341,7 +420,7 @@ Cards *DealHnd(int Ppl, int SIZE){
     return card;
 }
 
-
+//Destroy The Hand of Cards
 void Destroy(Cards *c){
     delete[]c[0].hand;
     delete[]c[1].hand;
@@ -351,11 +430,14 @@ void Destroy(Cards *c){
 
 bool Read(fstream &file, fstream &copy){
     char ch[1500];
+    //Open Text File
     copy.open("Temp.bin", ios::out|ios::in | ios::binary);
     file.open("Blackjack.txt",ios::in | ios::binary);
     
     int i=0;
-    if(!file) return false;       
+    //Make Sure The File Exists
+    if(!file) return false;  
+    //Begin Copying To A String
     else {
        while(file){
         file.get(ch[i]);
@@ -363,11 +445,14 @@ bool Read(fstream &file, fstream &copy){
         i++; 
         }
     }
+    //Close Files
     file.close();
     copy.close();
+    //Re-Open as Binary File
     copy.open("Temp.bin", ios::in| ios::binary);
     i=0;
     if(!copy)return false;
+    //Copy Directly To Binary File
     else{
         while(copy){
             copy.read(&ch[i],sizeof(ch[i]));
@@ -376,5 +461,6 @@ bool Read(fstream &file, fstream &copy){
         }cout<<endl;
         cout<<endl;
         copy.close();//Close the file
-    }return true;
+    }
+    return true;
 }
