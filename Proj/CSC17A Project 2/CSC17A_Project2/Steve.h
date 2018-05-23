@@ -11,15 +11,15 @@
 class Steve{
     private:
         static int Count;
-        int Wallet=1000;
+        int Wallet;
         string *Name=new string();
         int Hand[12];
         int Bet;
         bool Left;
     public:
         //Default COnstructor
-        Steve(){
-            //cout<<"Steve has joined you at the table."<<endl;
+        Steve(int n){
+            Wallet=n;
         }
         //Destructor
         ~Steve(){};        
@@ -28,6 +28,7 @@ class Steve{
         //How Much Money is in the Wallet
         int NewWallet(int money){
             Wallet+=money;
+            cout<<Wallet<<endl;
         }
         //Set Player Names
         int SetName(int);
@@ -58,6 +59,9 @@ class Steve{
         bool GetLeft(){
             return Left;
         }
+        Steve& operator += (const Steve &);
+        Steve operator + (const Steve &);
+        Steve operator - (const Steve &);
 };
 
 #endif /* STEVE_H */

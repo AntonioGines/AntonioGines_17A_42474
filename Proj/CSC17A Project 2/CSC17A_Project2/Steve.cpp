@@ -51,10 +51,30 @@ void Steve::CreateHand(){
 }
 
 int Steve::AmntBet(){
-    Bet=rand()%35+15;
+    Bet=rand()%200+15;
+    while(Wallet-Bet<15){
+        Bet=rand()%200+15;
+    }
     cout<<*Name<<" placed a bet of $"<<Bet<<endl;
 }
 
 void Steve::DestrName(){
     delete Name;
+}
+
+Steve& Steve::operator += (const Steve& right){
+    Steve temp(0);
+    this->Wallet+=right.Wallet;
+    return *this;
+}
+
+Steve Steve::operator + (const Steve& right){
+    Steve temp(0);
+    temp.Wallet = Wallet+right.Wallet;
+    return temp;
+}
+Steve Steve::operator -(const Steve& right){
+    Steve temp(0);
+    temp.Wallet = Wallet+right.Wallet;
+    return temp;
 }

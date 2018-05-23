@@ -36,6 +36,8 @@ int Dealt(int ,int );                   //Player's Total Cards Dealt
 void Names(char [],char []);            //Player's and Dealer's Name
 bool AutoWin(int, int);                 //Determine if Automatic Win  by 21
 void AiOutcome(Steve [],int,int[][12],int);
+void AiPot(Steve [],Steve,int);
+void DadSonMoney(Dad,Son);
 
 template<class T>
 T Incrmnt(T number){
@@ -63,6 +65,7 @@ int main(int argc, char** argv) {
         <<"birthday, the father has brought $1000 to use at the tables."
         <<endl;
     Son son(250);
+    Steve money(0);
     
     
     //Seed Random Number Generator
@@ -81,7 +84,7 @@ int main(int argc, char** argv) {
     cout<<"How many other people would you like to join you at the table? "
         <<"Please pick a number between 1 and 3."<<endl;
     cin>>numplay;
-    Steve obj[numplay];
+    Steve obj[numplay](1000);
     for(int m=0;m<=numplay-1;m++){
         obj[m].SetName(m);
     }
@@ -208,10 +211,10 @@ int main(int argc, char** argv) {
 
             case 'S':cout<<endl;break;          //Choosing to stay
 
-            case 'D':Incrmnt(bet);     //Choosing to double and incrementing bet
+            case 'D':bet=Incrmnt(bet);     //Choosing to double and incrementing bet
                      card3=card[0].hand[2];
-                     cout<<"You have doubled your initial bet to"<<endl;
-                     cout<<bet<<endl;
+                     cout<<"You have doubled your initial bet to "
+                         <<"$"<<bet<<endl;
                      cout<<"You will be given another card and cannot hit again"
                          <<endl;
                      cout<<"Your card is"<<endl;
@@ -231,7 +234,7 @@ int main(int argc, char** argv) {
                      split2=card2;
                      cout<<"You have doubled your initial bet and split it into"
                          <<"two hands. "<<endl;
-                     Incrmnt(bet);                 //Incrementing the bet
+                     bet=Incrmnt(bet);                 //Incrementing the bet
                      bet;
                      card3=card[0].hand[2];
                      card4=card[0].hand[3];
@@ -310,6 +313,7 @@ int main(int argc, char** argv) {
                     <<endl;
             }
             AiOutcome(obj, numplay, ClsHand, dealtot);
+            AiPot(obj,money,numplay);
         }
         
         cout<<"If you would like to play again type A and if not type in"
@@ -325,10 +329,18 @@ int main(int argc, char** argv) {
     return 0;
 }
 
+void AiPot(Steve obj[],Steve mon,int num){
+    for(int h=0;h<=num-1;h++){
+        mon+=obj[h];
+    }
+        cout<<mon.GetWallet()<<endl;
+}
+
 void AiOutcome(Steve obj[],int num,int hand[][12],int deal){
     int AiTotal=0;
     int AiCount=0;
     int m=0;
+    int hold=0;
     for(int play=0;play<=num-1;play++){
         //Calculate if they Haven't Left the Table
         if(obj[play].GetLeft()==false){
@@ -345,7 +357,10 @@ void AiOutcome(Steve obj[],int num,int hand[][12],int deal){
             if(AiTotal>deal){
                 cout<<obj[play].GetName()<<" beat the dealer and won "
                     <<obj[play].GetBet()<<endl;
-                obj[play].NewWallet(obj[play].GetBet());
+                hold=obj[play].GetBet();
+                //cout<<hold<<endl;
+                obj[play].NewWallet(hold);
+                //cout<<obj[play].NewWallet(obj[play].GetBet())<<endl;
             }
             //If the AI Lost
             if(AiTotal<deal||AiTotal>21){
