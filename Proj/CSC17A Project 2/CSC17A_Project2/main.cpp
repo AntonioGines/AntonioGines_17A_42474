@@ -100,6 +100,7 @@ int main(int argc, char** argv) {
         son.CreateHand();
         //Create Hand for Other Players
         for(int i=0;i<=numplay-1;i++){
+            obj[i].LeaveTbl();
             obj[i].CreateHand();
         }
         //Copy Hand to 2-D Array
@@ -114,7 +115,9 @@ int main(int argc, char** argv) {
         son.AmntBet();
         //Create Bets for AI Players
         for(int t=0;t<=numplay-1;t++){
-            obj[t].AmntBet();
+            if(obj[t].GetLeft()==false){
+                obj[t].AmntBet();
+            }
         }
         //Create Cards for Player and Dealer
         Cards *card;
@@ -354,8 +357,12 @@ void AiOutcome(Steve obj[],int num,int hand[][12],int deal){
             }
             cout<<"Hand is "<<AiTotal<<endl;
             //If the AI Won
-            if(AiTotal>deal){
-                cout<<obj[play].GetName()<<" beat the dealer and won "
+            if(AiTotal>21){
+                cout<<obj[play].GetName()<<" busted and lost $"
+                    <<obj[play].GetBet()<<endl;
+            }
+            else if(AiTotal>deal||(deal>21&&AiTotal<=21)){
+                cout<<obj[play].GetName()<<" beat the dealer and won $"
                     <<obj[play].GetBet()<<endl;
                 hold=obj[play].GetBet();
                 //cout<<hold<<endl;
@@ -363,14 +370,14 @@ void AiOutcome(Steve obj[],int num,int hand[][12],int deal){
                 //cout<<obj[play].NewWallet(obj[play].GetBet())<<endl;
             }
             //If the AI Lost
-            if(AiTotal<deal||AiTotal>21){
+            else if(AiTotal<deal){
                 cout<<obj[play].GetName()<<" was beaten by the house and lost $"
                     <<obj[play].GetBet()<<endl;
                 m=0-obj[play].GetBet();
                 obj[play].NewWallet(m);
             }
             //If the AI and the Dealer tied
-            if(AiTotal==deal&&AiTotal<=21){
+            else if(AiTotal==deal&&AiTotal<=21){
                 cout<<obj[play].GetName()<<" tied with the dealer and kept "
                     <<"their bet of $"<<obj[play].GetBet()<<endl;
             }

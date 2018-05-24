@@ -15,7 +15,7 @@ class Steve{
         string *Name=new string();
         int Hand[12];
         int Bet;
-        bool Left;
+        bool Left=false;
     public:
         //Default COnstructor
         Steve(int n){
@@ -35,7 +35,11 @@ class Steve{
         //Create Hand to Pull Cards From
         void CreateHand();
         //Determine if The Player Ran out of Money
-        bool LeaveTbl();   
+        bool LeaveTbl(){
+            if(Wallet==0){
+                Left=true;
+            }
+        }
         //Delete Names Memory
         void DestrName();
         //Check Exception for Name
@@ -63,5 +67,4 @@ class Steve{
         Steve operator + (const Steve &);
         Steve operator - (const Steve &);
 };
-
 #endif /* STEVE_H */
