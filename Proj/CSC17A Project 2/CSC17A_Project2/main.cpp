@@ -35,6 +35,10 @@ int ace();                              //Choose Whether an Ace=1 or 11
 int Dealt(int ,int );                   //Player's Total Cards Dealt
 void Names(char [],char []);            //Player's and Dealer's Name
 bool AutoWin(int, int);                 //Determine if Automatic Win  by 21
+int Hit(Cards *,int,int,char&);
+int Double(Cards *,int,int);
+int Split(Cards *,int,int,int,int,int,int,int);
+void Outcome(int,int,int,char[]);
 void AiOutcome(Steve [],int,int[][12],int);
 void AiPot(Steve [],Steve,int);
 void DadSonMoney(Dad,Son);
@@ -145,9 +149,6 @@ int main(int argc, char** argv) {
             <<endl;
         total=Dealt(card1,card2);
         //Record Largest Card's Value
-        if(card[0].hand[0]>card[0].hand[1]){
-            rng1=card1;
-        }else rng1=card2;
         //Determine Auto Win
         win=AutoWin(card1, card2);
         win?cout<<"Congratulations! It's a Blackjack,you win"<<endl:cout<<endl;
@@ -185,96 +186,23 @@ int main(int argc, char** argv) {
         }
         switch(choice){                       //Begin switch based on input
             case 'H':do{                      //Choosing to hit
-                        card3=card[0].hand[count1+2];
                         count1++;
-                        cout<<"You have chosen to hit and your card is:"<<endl;
-                        cout<<card3<<endl;
-                        if(card3==1||card3==11){  //Choosing what happens 
-                            card3=ace();          //if you get 1 or an 11
-                        }
-                        total+=card3;           //Incrementing total value of cards
-                        if(card3>card2){
-                            rng2=card3;
-                        }
-                        else if(ptntial>card3&&ptntial>card2){
-                            rng2=ptntial;
-                        }
-                        else rng2=card1;
-                        ptntial=card3;
-                        cout<<"Bringing your total to:"<<endl;
-                        cout<<total<<endl;
-                        if(total<=21){         //Choosing to hit again
-                        cout<<"Would you like to hit again? If yes type"
-                               <<" H and if not type any other character"<<endl; 
-                        cin>>hitagn;
-                        }
-                        else cout<<"You cannot hit again"<<endl;
+                        total=Hit(card,total,count1,hitagn);
                     }while(hitagn=='H'&&total<=21);
                     cout<<endl;break;
 
             case 'S':cout<<endl;break;          //Choosing to stay
 
-            case 'D':bet=Incrmnt(bet);     //Choosing to double and incrementing bet
-                     card3=card[0].hand[2];
-                     cout<<"You have doubled your initial bet to "
-                         <<"$"<<bet<<endl;
-                     cout<<"You will be given another card and cannot hit again"
-                         <<endl;
-                     cout<<"Your card is"<<endl;
-                     cout<<card3<<endl;
-                     if(card3==1||card3==11){ //Choosing what happens if you get  
-                            card3=ace();          //1 or an 11
-                     }
-                     cout<<"And your total is"<<endl;
-                     total+=card3;           //Incrementing total value of cards
-                     if(card3>card2){      //Saving input to determine max value 
-                            rng2=card3;      //of single card in a hand
-                     }
-                     else rng2=card1;
-                     bet;
+            case 'D':bet=Incrmnt(bet); //Choosing to double and incrementing bet
+                     total=Double(card,total,bet);
                      cout<<total<<endl;break;
-            case 'T':split1=card1;            //Splitting the hand
-                     split2=card2;
-                     cout<<"You have doubled your initial bet and split it into"
-                         <<"two hands. "<<endl;
-                     bet=Incrmnt(bet);                 //Incrementing the bet
-                     bet;
-                     card3=card[0].hand[2];
-                     card4=card[0].hand[3];
-                     cout<<"The dealer will now add a card to both hands."
-                         <<endl;
-                     cout<<"To the first hand the dealer added"<<endl;
-                     cout<<card3<<endl;         //Card added to the first hand
-                     if(card3==1||card3==11){ //Choosing what happens if you get  
-                            card3=ace();          //1 or an 11
-                     }
-                     if(card3>card2){           //Saving input
-                         if(card3>card4){
-                             rng2=card3;
-                         }
-                     }
-                     else rng2=card1;
-                     cout<<"To the second hand the dealer added"<<endl;
-                     cout<<card4<<endl;          //card added to second hand
-                     if(card4==1||card4==11){    //Choosing what happens  
-                            card4=ace();          //if you get 1 or an 11
-                     }
-                     if(card4>card2){
-                         if(card4>card3){        //Saving input
-                             rng2=card4;
-                         }
-                     }
-                     else rng2=card1;
-                     total1=card1+card3;          //Total value of each hand
-                     total2=card2+card4;
-                     cout<<"The total of the first pile is"<<endl;
-                     cout<<total1<<endl;
-                     cout<<"The total of the second pile is"<<endl;
-                     cout<<total2<<endl;
-                     if(total1>total2){             //Determine which hand is
-                         total=total1;              //Favorable
-                     }else total=total2;
+                     
+            case 'T':cout<<"You have doubled your initial bet and split it into"
+                    <<"two hands. "<<endl;
+                    bet=Incrmnt(bet);                 //Incrementing the bet
+                    total=Split(card,total,card3,card4,total1,total2,card1,card2);
                      cout<<endl;break;
+                     
         }if(total>21){                              //It's a bust if > 21
             cout<<"Sorry, your total of "<<total<<" is greater than 21. It's a "
                 <<"bust, thanks for your cash!"<<endl;
@@ -297,7 +225,26 @@ int main(int argc, char** argv) {
             }
             cout<<"The dealer's total is:"<<endl;
             cout<<dealtot<<endl;
-            if(dealtot>21){                        // If Dealer Busts
+            Outcome(dealtot,total,bet,deal);
+            AiOutcome(obj, numplay, ClsHand, dealtot);
+            AiPot(obj,money,numplay);
+        }
+        
+        cout<<"If you would like to play again type A and if not type in"
+             <<" any other character."<<endl;
+        cin>>playagn;                                //Would you like to replay?
+        Destroy(card);
+    }
+    while(playagn=='A'||playagn=='a');              //Choose to replay
+    for(int n=0;n<=numplay-1;n++){
+        obj[n].DestrName();
+    }
+    //Exit stage right!
+    return 0;
+}
+
+void Outcome(int dealtot,int total,int bet,char deal[20]){
+                if(dealtot>21){                        // If Dealer Busts
                 cout<<"Congratulations! "<<deal
                 <<" the dealer busts meaning you won!"<<endl;
                 cout<<"Your payout is $"<<bet<<endl;
@@ -315,21 +262,71 @@ int main(int argc, char** argv) {
                 cout<<"You and the dealer tied so you get to keep your $"<<bet
                     <<endl;
             }
-            AiOutcome(obj, numplay, ClsHand, dealtot);
-            AiPot(obj,money,numplay);
+}
+
+int Split(Cards *c,int total,int c3,int c4,int tot1,
+           int tot2,int c1, int c2){
+    int split1=c1;            //Splitting the hand
+    int split2=c2;
+    c3=c[0].hand[2];
+    c4=c[0].hand[3];
+    cout<<"The dealer will now add a card to both hands."
+        <<endl;
+    cout<<"To the first hand the dealer added"<<endl;
+    cout<<c3<<endl;         //Card added to the first hand
+    if(c3==1||c3==11){ //Choosing what happens if you get  
+           c3=ace();          //1 or an 11
+    }
+    cout<<"To the second hand the dealer added"<<endl;
+    cout<<c4<<endl;          //card added to second hand
+    if(c4==1||c4==11){    //Choosing what happens  
+           c4=ace();          //if you get 1 or an 11
+    }
+    tot1=c1+c3;          //Total value of each hand
+    tot2=c2+c4;
+    cout<<"The total of the first pile is"<<endl;
+    cout<<tot1<<endl;
+    cout<<"The total of the second pile is"<<endl;
+    cout<<tot2<<endl;
+    if(tot1>tot2){             //Determine which hand is
+        total=tot1;              //Favorable
+    }else total=tot2;
+    return total;
+}
+
+int Double(Cards *card,int total,int bet){
+    int  card3=card[0].hand[2];
+    cout<<"You have doubled your initial bet to "
+     <<"$"<<bet<<endl;
+    cout<<"You will be given another card and cannot hit again"
+     <<endl;
+    cout<<"Your card is"<<endl;
+    cout<<card3<<endl;
+    if(card3==1||card3==11){ //Choosing what happens if you get  
+        card3=ace();          //1 or an 11
+    }
+    cout<<"And your total is"<<endl;
+    total+=card3;           //Incrementing total value of cards
+    return total;
+}
+
+int Hit(Cards *c,int total,int count1,char &hit){
+        int card3=c[0].hand[count1+2];
+        cout<<"You have chosen to hit and your card is:"<<endl;
+        cout<<card3<<endl;
+        if(card3==1||card3==11){  //Choosing what happens 
+            card3=ace();          //if you get 1 or an 11
         }
-        
-        cout<<"If you would like to play again type A and if not type in"
-             <<" any other character."<<endl;
-        cin>>playagn;                                //Would you like to replay?
-        Destroy(card);
-    }
-    while(playagn=='A'||playagn=='a');              //Choose to replay
-    for(int n=0;n<=numplay-1;n++){
-        obj[n].DestrName();
-    }
-    //Exit stage right!
-    return 0;
+        total+=card3;           //Incrementing total value of cards
+        cout<<"Bringing your total to:"<<endl;
+        cout<<total<<endl;
+        if(total<=21){         //Choosing to hit again
+        cout<<"Would you like to hit again? If yes type"
+               <<" H and if not type any other character"<<endl; 
+                cin>>hit;
+        }
+        else cout<<"You cannot hit again"<<endl;
+        return total;
 }
 
 void AiPot(Steve obj[],Steve mon,int num){
