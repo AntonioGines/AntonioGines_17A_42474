@@ -23,12 +23,14 @@ using namespace std;
 #include "Cards.h"
 #include "Steve.h"
 #include "DadSon.h"
+#include "Drunkard.h"
 //Global Constants - Math/Physics Constants, Conversions,
 //                   2-D Array Dimensions
-int NumCards=12;
+const int NumCards=12;
 
 //Function Prototypes
 bool Read(fstream &, fstream &);        //Input and Output Data via Binary Files
+//vector Copy(vector);
 Cards *DealHnd(int,int);                //Allocate Memory and Create Cards
 void Destroy(Cards *);                  //Delete Arrays in Memory
 int ace();                              //Choose Whether an Ace=1 or 11
@@ -39,9 +41,10 @@ int Hit(Cards *,int,int,char&);
 int Double(Cards *,int,int);
 int Split(Cards *,int,int,int,int,int,int,int);
 void Outcome(int,int,int,char[]);
-void AiOutcome(Steve [],int,int[][12],int);
+void DrnkOutcme(Drunkard,int);
+void AiOutcome(Steve [],int,int[][NumCards],int);
 void AiPot(Steve [],Steve,int);
-void DadSonMoney(Dad,Son);
+void DadSonMoney(Dad,Son,int);
 
 template<class T>
 T Incrmnt(T number){
@@ -51,7 +54,6 @@ T Incrmnt(T number){
 //Execution Begins Here
 int main(int argc, char** argv) {
     //Declare Variables
-    
     int SIZE=10;      
     int Ppl=2,m=0,AiTotal,AiCount;
     int newbet,total,rng1,rng2,card1,card2,card3,card4,payout,ptntial;
@@ -59,18 +61,17 @@ int main(int argc, char** argv) {
     char choice, hitagn, playagn,rule;
     float bet;
     bool win;
+    vector<char> re;
     char you[20],deal[20];
-    string please=" Please enter a bet ";please+="between $15 and $500";    
-    
+    const char intro[144]="A Father and his son have come to the casino for the"
+    " son's 18th birthday, the father has brought $1000 to use at the tables.";
+    string please=" Please enter a bet ";please+="between $15 and $500";  
     fstream file;
     fstream copy;
     Dad dad;
-        cout<<"A Father and his son have come to the casino for the son's 18th "
-        <<"birthday, the father has brought $1000 to use at the tables."
-        <<endl;
     Son son(250);
+    Drunkard drunk;
     Steve money(0);
-    
     
     //Seed Random Number Generator
     srand(static_cast<int>(time(0)));
@@ -78,6 +79,13 @@ int main(int argc, char** argv) {
     //Initialize Variables    
     ptntial=0;                                  //Will be used later on as temp
 
+    //Copy Constant Character Array to Vector via STL
+    for(int cpy=0;cpy<=143;cpy++){
+        re.push_back(intro[cpy]);
+        cout<<re[cpy];
+    }
+    cout<<endl;
+    
     //Rules of the Game
     cout<<"Would you like to read the rules of the game? If so, type Y"<<endl;
     cin>>rule;
@@ -92,29 +100,42 @@ int main(int argc, char** argv) {
     for(int m=0;m<=numplay-1;m++){
         obj[m].SetName(m);
     }
-    //Create Hand to Duplicate to
-    int ClsHand[numplay][12];
+    //Create Hands to Duplicate Cards to
+    int DrunkHnd[NumCards];
+    int SonHand[NumCards];
+    int DadHand[NumCards];
+    int ClsHand[numplay][NumCards];
     //Create Names
     cout<<"Before we begin, what is your name and what is the "
         <<"dealer's name?"<<endl;
     Names(you, deal);                           //Call FillAry
     do{ 
         //Create Instance of Father and Son Class
+        drunk.CreateHand();
         dad.CreateHand();
         son.CreateHand();
         //Create Hand for Other Players
+        
         for(int i=0;i<=numplay-1;i++){
-            obj[i].LeaveTbl();
+            if(obj[i].GetLeft()==false){
+                obj[i].LeaveTbl();
+            }
             obj[i].CreateHand();
         }
-        //Copy Hand to 2-D Array
+        //Copy Father and Son Hand to 1-D Array
+        for(int f=0;f<=10;f++){
+            DrunkHnd[f]=drunk.GetHand(f);
+            SonHand[f]=dad.GetHand(f);
+            DadHand[f]=son.GetHand(f);
+        }
+        //Copy AI Hand to 2-D Array
         for(int m=0;m<=numplay-1;m++){
             for(int crd=0;crd<=10;crd++){
-                ClsHand[m][crd]=obj[m].GetHand(crd);
-                //cout<<ClsHand[m][crd]<<endl;
+                ClsHand[m][crd]=obj[m].GetHand(crd);;
             }
         }
-        //Create Bets for Father and Son
+        //Create Bets for Father, Son, and Drunkard
+        drunk.AmntBet();
         dad.AmntBet();
         son.AmntBet();
         //Create Bets for AI Players
@@ -145,10 +166,9 @@ int main(int argc, char** argv) {
         }if(card2==1||card2==11){
             card2=ace();
         }
-        cout<<"Your hand is now "<<to_string(card1)<<" and "<<to_string(card2)
-            <<endl;
+//        cout<<"Your hand is now "<<to_string(card1)<<" and "<<to_string(card2)
+//            <<endl;
         total=Dealt(card1,card2);
-        //Record Largest Card's Value
         //Determine Auto Win
         win=AutoWin(card1, card2);
         win?cout<<"Congratulations! It's a Blackjack,you win"<<endl:cout<<endl;
@@ -163,6 +183,7 @@ int main(int argc, char** argv) {
         }
         cout<<"The dealer drew:"<<endl;        //Dealer's Turn
         cout<<card[1].hand[0]<<endl;
+        drunk.DrunkBet();
         if(card1==card2){                   //Choices when you are able to split
             cout<<"If you wish to Hit type H"<<endl;
             cout<<"If you wish to Stand type S"<<endl;
@@ -200,7 +221,8 @@ int main(int argc, char** argv) {
             case 'T':cout<<"You have doubled your initial bet and split it into"
                     <<"two hands. "<<endl;
                     bet=Incrmnt(bet);                 //Incrementing the bet
-                    total=Split(card,total,card3,card4,total1,total2,card1,card2);
+                    total=Split(card,total,card3,card4,total1,total2,card1,
+                                card2);
                      cout<<endl;break;
                      
         }if(total>21){                              //It's a bust if > 21
@@ -208,7 +230,7 @@ int main(int argc, char** argv) {
                 <<"bust, thanks for your cash!"<<endl;
         }
         else{
-            dealtot=card[1].hand[0]+card[1].hand[1];   //If it's not an immediate bust
+            dealtot=card[1].hand[0]+card[1].hand[1];
             cout<<"The dealer will now reveal their second card and choose "
                  <<"whether or not to hit"<<endl;
             cout<<"The dealer's second card is:"<<endl;
@@ -226,6 +248,8 @@ int main(int argc, char** argv) {
             cout<<"The dealer's total is:"<<endl;
             cout<<dealtot<<endl;
             Outcome(dealtot,total,bet,deal);
+            DrnkOutcme(drunk,dealtot);
+            DadSonMoney(dad,son,dealtot);
             AiOutcome(obj, numplay, ClsHand, dealtot);
             AiPot(obj,money,numplay);
         }
@@ -243,25 +267,167 @@ int main(int argc, char** argv) {
     return 0;
 }
 
+void DadSonMoney(Dad d, Son s,int deal){
+    Dad Sum;
+    int tot=0;
+    int HandCnt=0;
+    int temp=0;
+    if(d.GetLeft()==false){
+        while(tot<15){
+            tot+=d.GetHand(HandCnt);
+            HandCnt++;
+        }
+        cout<<"The father had a hand of "<<tot<<endl;
+        if(tot>21){
+            cout<<"The father busted and lost $"<<d.GetBet()<<endl;
+            d.NewTotal(0-d.GetBet());
+        }
+        else if(tot>deal||(deal>21&&tot<=21)){
+            cout<<"The father beat the dealer and won $"<<d.GetBet()<<endl;
+            d.NewTotal(d.GetBet());
+        }
+        else if(tot<deal){
+            cout<<"The father was beaten by the dealer and lost $"<<d.GetBet()
+                <<endl;
+            d.NewTotal(0-d.GetBet());
+        }
+        else if(tot==deal&&tot<=21){
+            cout<<"The father tied with the dealer and kept his bet of $"
+                <<d.GetBet()<<endl;
+        }
+    }
+    tot=0;
+    HandCnt=0;
+    if(s.GetLeft()==false){
+        while(tot<15){
+            tot+=s.GetHand(HandCnt);
+            HandCnt++;
+        }
+                cout<<"The son had a hand of "<<tot<<endl;
+        if(tot>21){
+            cout<<"The son busted and lost $"<<s.GetBet()<<endl;
+        }
+        else if(tot>deal||(deal>21&&tot<=21)){
+            cout<<"The son beat the dealer and won $"<<s.GetBet()<<endl;
+        }
+        else if(tot<deal){
+            cout<<"The son was beaten by the dealer and lost $"<<s.GetBet()
+                <<endl;
+        }
+        else if(tot==deal&&tot<=21){
+            cout<<"The son tied with the dealer and kept his bet of $"
+                <<s.GetBet()<<endl;
+        }
+    }
+    Sum=d+s;
+    cout<<Sum<<endl;
+}
+
+void AiPot(Steve obj[],Steve mon,int num){
+    for(int h=0;h<=num-1;h++){
+        mon+=obj[h];
+    }
+        cout<<mon.GetWallet()<<endl;
+}
+
+void AiOutcome(Steve obj[],int num,int hand[][NumCards],int deal){
+    int AiTotal=0;
+    int AiCount=0;
+    int m=0;
+    int hold=0;
+    for(int play=0;play<=num-1;play++){
+        //Calculate if they Haven't Left the Table
+        if(obj[play].GetLeft()==false){
+            AiTotal=0;
+            AiCount=0;
+            //Pull Form Hand
+            while(AiTotal<15){
+                AiTotal+=hand[play][AiCount];
+                AiCount++;
+            }
+            cout<<"Hand is "<<AiTotal<<endl;
+            //If the AI Won
+            if(AiTotal>21){
+                cout<<obj[play].GetName()<<" busted and lost $"
+                    <<obj[play].GetBet()<<endl;
+                    hold=0-obj[play].GetBet();
+                    obj[play].NewWallet(hold);
+            }
+            else if(AiTotal>deal||(deal>21&&AiTotal<=21)){
+                cout<<obj[play].GetName()<<" beat the dealer and won $"
+                    <<obj[play].GetBet()<<endl;
+                hold=obj[play].GetBet();
+                obj[play].NewWallet(hold);
+                //cout<<obj[play].NewWallet(obj[play].GetBet())<<endl;
+            }
+            //If the AI Lost
+            else if(AiTotal<deal){
+                cout<<obj[play].GetName()<<" was beaten by the house and lost $"
+                    <<obj[play].GetBet()<<endl;
+                m=0-obj[play].GetBet();
+                obj[play].NewWallet(m);
+            }
+            //If the AI and the Dealer tied
+            else if(AiTotal==deal&&AiTotal<=21){
+                cout<<obj[play].GetName()<<" tied with the dealer and kept "
+                    <<"their bet of $"<<obj[play].GetBet()<<endl;
+            }
+        }
+    }
+}
+
+void DrnkOutcme(Drunkard d,int dealer){
+    int DrnkTot=0;
+    int Cntr=0;
+    int tmp=0;
+    if(d.GetLeft()==false){
+        while(DrnkTot<15){
+            DrnkTot+=d.GetHand(Cntr);
+            Cntr++;
+        }
+        cout<<"The drunkard had a hand of "<<DrnkTot<<endl;
+        if(DrnkTot>21){
+            cout<<"The drunkard busted and lost $"<<d.GetBet()<<endl;
+            tmp=0-d.GetBet();
+            d.NewWallet(tmp);
+        }
+        else if(DrnkTot>dealer||(dealer>21&&DrnkTot<=21)){
+            cout<<"The drunkard beat the dealer and won $"<<d.GetBet()<<endl;
+            tmp=d.GetBet();
+            d.NewWallet(tmp);
+        }
+        else if(DrnkTot<dealer){
+            cout<<"The drunkard was beaten by the dealer and lost $"<<d.GetBet()
+                <<endl;
+            tmp=0-d.GetBet();
+            d.NewWallet(tmp);
+        }
+        else if(DrnkTot==dealer){
+            cout<<"The drunkard tied with the dealer and kept his bet of $"
+                <<d.GetBet()<<endl;
+        }
+    }
+}
+
 void Outcome(int dealtot,int total,int bet,char deal[20]){
-                if(dealtot>21){                        // If Dealer Busts
-                cout<<"Congratulations! "<<deal
-                <<" the dealer busts meaning you won!"<<endl;
-                cout<<"Your payout is $"<<bet<<endl;
-            }
-            else if(total<=21&&total>dealtot){      //If you win
-                cout<<"Congratulations! You beat "<<deal<<" the dealer! "
-                    <<endl;
-                cout<<"Your payout is $"<<bet<<endl;
-            }
-            else if(dealtot>total){                 //If the dealer busts
-                cout<<"Sorry, but "<<deal
-                    <<" the dealer beat you and you lost $"<<bet<<endl;
-            }
-            else if(dealtot==total){                //If you tie
-                cout<<"You and the dealer tied so you get to keep your $"<<bet
-                    <<endl;
-            }
+    if(dealtot>21){                        // If Dealer Busts
+    cout<<"Congratulations! "<<deal
+    <<" the dealer busts meaning you won!"<<endl;
+    cout<<"Your payout is $"<<bet<<endl;
+    }
+    else if(total<=21&&total>dealtot){      //If you win
+        cout<<"Congratulations! You beat "<<deal<<" the dealer! "
+            <<endl;
+        cout<<"Your payout is $"<<bet<<endl;
+    }
+    else if(dealtot>total){                 //If the dealer busts
+        cout<<"Sorry, but "<<deal
+            <<" the dealer beat you and you lost $"<<bet<<endl;
+    }
+    else if(dealtot==total){                //If you tie
+        cout<<"You and the dealer tied so you get to keep your $"<<bet
+            <<endl;
+    }
 }
 
 int Split(Cards *c,int total,int c3,int c4,int tot1,
@@ -329,59 +495,6 @@ int Hit(Cards *c,int total,int count1,char &hit){
         return total;
 }
 
-void AiPot(Steve obj[],Steve mon,int num){
-    for(int h=0;h<=num-1;h++){
-        mon+=obj[h];
-    }
-        cout<<mon.GetWallet()<<endl;
-}
-
-void AiOutcome(Steve obj[],int num,int hand[][12],int deal){
-    int AiTotal=0;
-    int AiCount=0;
-    int m=0;
-    int hold=0;
-    for(int play=0;play<=num-1;play++){
-        //Calculate if they Haven't Left the Table
-        if(obj[play].GetLeft()==false){
-            //cout<<deal<<endl;
-            AiTotal=0;
-            AiCount=0;
-            //Pull Form Hand
-            while(AiTotal<15){
-                AiTotal+=hand[play][AiCount];
-                AiCount++;
-            }
-            cout<<"Hand is "<<AiTotal<<endl;
-            //If the AI Won
-            if(AiTotal>21){
-                cout<<obj[play].GetName()<<" busted and lost $"
-                    <<obj[play].GetBet()<<endl;
-            }
-            else if(AiTotal>deal||(deal>21&&AiTotal<=21)){
-                cout<<obj[play].GetName()<<" beat the dealer and won $"
-                    <<obj[play].GetBet()<<endl;
-                hold=obj[play].GetBet();
-                //cout<<hold<<endl;
-                obj[play].NewWallet(hold);
-                //cout<<obj[play].NewWallet(obj[play].GetBet())<<endl;
-            }
-            //If the AI Lost
-            else if(AiTotal<deal){
-                cout<<obj[play].GetName()<<" was beaten by the house and lost $"
-                    <<obj[play].GetBet()<<endl;
-                m=0-obj[play].GetBet();
-                obj[play].NewWallet(m);
-            }
-            //If the AI and the Dealer tied
-            else if(AiTotal==deal&&AiTotal<=21){
-                cout<<obj[play].GetName()<<" tied with the dealer and kept "
-                    <<"their bet of $"<<obj[play].GetBet()<<endl;
-            }
-        }
-    }
-}
-
 bool AutoWin(int num1, int num2){                    //If first hand is 21
     bool Val;
     if(num1+num2==21){
@@ -446,6 +559,10 @@ void Destroy(Cards *c){
     delete[](c+0);
     delete[](c+1);
 }
+
+//vector Copy(vector c){
+//    for(int i=0;i<=)
+//}
 
 bool Read(fstream &file, fstream &copy){
     char ch[1500];

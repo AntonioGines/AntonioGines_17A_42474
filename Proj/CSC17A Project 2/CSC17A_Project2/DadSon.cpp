@@ -28,10 +28,10 @@ Dad Dad::operator + (const Dad &right){
     temp.Wallet = Wallet+right.Wallet;
     return temp;
 }
-Dad Dad::operator -(const Dad &right){
-    Dad temp;
-    temp.Wallet = Wallet+right.Wallet;
-    return temp;
+ostream &operator << (ostream &strm, const Dad &check){
+    strm<<"The total quantity of money between the father and the son is "
+        <<check.Wallet<<endl;
+    return strm;
 }
 
 Son::~Son(){

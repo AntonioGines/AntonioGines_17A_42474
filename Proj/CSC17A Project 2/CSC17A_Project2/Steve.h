@@ -67,4 +67,5 @@ class Steve{
         Steve operator + (const Steve &);
         Steve operator - (const Steve &);
 };
+//int Steve::Count=0;
 #endif /* STEVE_H */

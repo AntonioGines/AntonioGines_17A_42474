@@ -1,3 +1,9 @@
+/* 
+ * File:   main.cpp
+ * Author: Antonio Gines
+ * Created on May, 7 , 2018, 11:28 PM
+ * Purpose:  Blackjack 21
+ */
 using namespace std;
 
 #ifndef DADSON_H
@@ -6,7 +12,7 @@ using namespace std;
 class Dad{
 protected:
     static int Count;
-    int Wallet=1000;
+    int Wallet=750;
     int Hand[12];
     int Bet;
     bool Left;
@@ -18,7 +24,9 @@ public:
     //Determine Bet
     int AmntBet();       
     //How Much Money is in the Wallet
-    int NewTotal();
+    int NewTotal(int money){
+        Wallet+=money;
+    }
     //Determine Whether or Not Father or Son has Left the Table
     bool LeaveTbl();
     //In line Getter Functions
@@ -28,8 +36,8 @@ public:
     int GetWallet(){
         return Wallet;
     }
-    int GetHand(){
-        return *Hand;
+    int GetHand(int h){
+        return *(Hand+h);
     }
     int GetBet(){
         return Bet;
@@ -39,8 +47,10 @@ public:
     }
     //Overloaded Operators Functions
     Dad operator + (const Dad &);
-    Dad operator - (const Dad &);
+    friend ostream &operator << (ostream &, const Dad &);
 };
+//Overloaded Function Prototype
+    ostream &operator << (ostream &, const Dad &);
 
 class Son : public Dad{
 public:
@@ -54,4 +64,3 @@ public:
 };
 
 #endif /* DADSON_H */
-
