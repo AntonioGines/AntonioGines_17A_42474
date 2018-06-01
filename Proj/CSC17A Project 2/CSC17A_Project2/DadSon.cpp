@@ -23,6 +23,14 @@ int Dad::AmntBet(){
     cout<<"The father placed a bet of $"<<Bet<<endl;
 }
 
+bool Dad::LeaveTbl(){
+    if(Wallet==0&&Left==false){
+        Left=true;
+        cout<<"The father ran out of money and left the game."<<endl;
+        return Left;
+    }
+}
+
 Dad Dad::operator + (const Dad &right){
     Dad temp;
     temp.Wallet = Wallet+right.Wallet;
@@ -35,10 +43,18 @@ ostream &operator << (ostream &strm, const Dad &check){
 }
 
 Son::~Son(){
-    cout<<"Thank you all for playing!"<<endl;
+    cout<<"Thanks for your money!"<<endl;
 }
 
 int Son::AmntBet(){
     Bet=rand()%35+15;
     cout<<"The son placed a bet of $"<<Bet<<endl;
+}
+
+bool Son::LeaveTbl(){
+    if(Wallet==0&&Left==false){
+        Left=true;
+        cout<<"The son ran out of money and left the game."<<endl;
+        return Left;
+    }
 }

@@ -11,11 +11,10 @@ using namespace std;
 
 class Dad{
 protected:
-    static int Count;
     int Wallet=750;
     int Hand[12];
     int Bet;
-    bool Left;
+    bool Left=false;
 public:
     //Default Constructor
     Dad(){}
@@ -30,9 +29,6 @@ public:
     //Determine Whether or Not Father or Son has Left the Table
     bool LeaveTbl();
     //In line Getter Functions
-    int CountSet(){
-        Count++;
-    }
     int GetWallet(){
         return Wallet;
     }
@@ -61,6 +57,6 @@ public:
     }
     ~Son();
     int AmntBet();
+    bool LeaveTbl();
 };
-
 #endif /* DADSON_H */

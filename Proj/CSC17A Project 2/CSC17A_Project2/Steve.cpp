@@ -24,8 +24,8 @@ int Steve::SetName(int n){
         }
         //If A Number Is Found in the String end Program
         catch(string Check){
-        cout<<Check<<endl;
-        exit(0);
+            cout<<Check<<endl;
+            exit(0);
         }    
     }
 
@@ -50,6 +50,15 @@ void Steve::CreateHand(){
     }
 }
 
+bool Steve::LeaveTbl(){
+    if(Wallet==0&&Left==false){
+        Left=true;
+        TurnCnt--;
+        cout<<"There are now "<<TurnCnt<<"AI player left in the games"<<endl;
+        return Left;
+    }
+}
+
 int Steve::AmntBet(){
     Bet=rand()%200+15;
     while(Wallet-Bet<15){
@@ -67,14 +76,4 @@ Steve& Steve::operator += (const Steve& right){
     this->Wallet+=right.Wallet;
     return *this;
 }
-
-Steve Steve::operator + (const Steve& right){
-    Steve temp(0);
-    temp.Wallet = Wallet+right.Wallet;
-    return temp;
-}
-Steve Steve::operator -(const Steve& right){
-    Steve temp(0);
-    temp.Wallet = Wallet+right.Wallet;
-    return temp;
-}
+float Steve::TurnCnt = 0;

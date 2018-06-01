@@ -10,7 +10,7 @@
 
 class Steve{
     private:
-        static int Count;
+        static float TurnCnt;
         int Wallet;
         string *Name=new string();
         int Hand[12];
@@ -28,26 +28,22 @@ class Steve{
         //How Much Money is in the Wallet
         int NewWallet(int money){
             Wallet+=money;
-            cout<<Wallet<<endl;
+            cout<<*Name<<" has $"<<Wallet<<" left to bet with"<<endl;
         }
         //Set Player Names
         int SetName(int);
         //Create Hand to Pull Cards From
         void CreateHand();
         //Determine if The Player Ran out of Money
-        bool LeaveTbl(){
-            if(Wallet==0){
-                Left=true;
-            }
+        bool LeaveTbl();
+        int IncrmntPlayer(){
+            TurnCnt++;
         }
         //Delete Names Memory
         void DestrName();
         //Check Exception for Name
         void NameCheck(string);
         //Count Number of Sets to Output upon Loss
-        void CountSet(){
-            ++Count;
-        }
         int GetWallet(){
             return Wallet;
         }
@@ -63,9 +59,9 @@ class Steve{
         bool GetLeft(){
             return Left;
         }
+        int GetCnt(){
+            return TurnCnt;
+        }
         Steve& operator += (const Steve &);
-        Steve operator + (const Steve &);
-        Steve operator - (const Steve &);
 };
-//int Steve::Count=0;
 #endif /* STEVE_H */
